@@ -7,6 +7,6 @@ services:
     ports:
       - "9666:9666"
     volumes:
-      - /absolute/path/to/storage:/app/storage
-      - /absolute/path/to/database.sqlite:/app/database.sqlite
+      - /Users/user/Desktop/github/spacedeck-open/storage:/app/storage
+      - /Users/user/Desktop/github/spacedeck-open/storage/database.sqlite:/app/database.sqlite
 
