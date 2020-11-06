@@ -1,14 +1,16 @@
 const Umzug = require('umzug');
 const config = require('config')
+const sleep = require('sleep-promise')
 
-function sequel_log(a,b,c) {
+function sequel_log(a, b, c) {
   console.log(a);
 }
 
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('database', 'username', 'password', {
-  host: 'localhost',
-  dialect: 'sqlite',
+const sequelize = new Sequelize('opendeck', 'root', 'secret', {
+  host: 'db',
+  port: 3306,
+  dialect: 'mysql',
 
   pool: {
     max: 5,
@@ -18,8 +20,9 @@ const sequelize = new Sequelize('database', 'username', 'password', {
   },
 
   // SQLite only
-  storage: config.get('storage_local_db'),
-  logging: sequel_log,
+  // storage: config.get('storage_local_db'),
+  // logging: sequel_log,
+  logging: true,
 
   // http://docs.sequelizejs.com/manual/tutorial/querying.html#operators
   operatorsAliases: false
@@ -35,7 +38,10 @@ var Action;
 
 module.exports = {
   User: sequelize.define('user', {
-    _id: {type: Sequelize.STRING, primaryKey: true},
+    _id: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
     email: Sequelize.STRING,
     password_hash: Sequelize.STRING,
     nickname: Sequelize.STRING,
@@ -48,38 +54,63 @@ module.exports = {
     prefs_language: Sequelize.STRING,
     prefs_email_notifications: Sequelize.STRING,
     prefs_email_digest: Sequelize.STRING,
-    created_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
-    updated_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW}
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    }
   }),
 
-  CreatorSafeInclude: function(db) {
+  CreatorSafeInclude: function (db) {
     return {
       model: this.User,
       as: 'creator',
-      attributes: ['_id','email','nickname',
-                   'avatar_original_uri',
-                   'avatar_thumb_uri',
-                   'created_at','updated_at']
+      attributes: ['_id', 'email', 'nickname',
+        'avatar_original_uri',
+        'avatar_thumb_uri',
+        'created_at', 'updated_at'
+      ]
     };
   },
 
   Session: sequelize.define('session', {
-    token: {type: Sequelize.STRING, primaryKey: true},
+    token: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
     user_id: Sequelize.STRING,
     expires: Sequelize.DATE,
-    created_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
     device: Sequelize.STRING,
     ip: Sequelize.STRING
   }),
 
   Space: sequelize.define('space', {
-    _id: {type: Sequelize.STRING, primaryKey: true},
-    name: {type: Sequelize.STRING, default: "New Space"},
-    space_type: {type: Sequelize.STRING, defaultValue: "space"},
+    _id: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
+    name: {
+      type: Sequelize.STRING,
+      default: "New Space"
+    },
+    space_type: {
+      type: Sequelize.STRING,
+      defaultValue: "space"
+    },
     creator_id: Sequelize.STRING,
     parent_space_id: Sequelize.STRING,
 
-    access_mode: {type: Sequelize.STRING, default: "private"}, // "public" || "private"
+    access_mode: {
+      type: Sequelize.STRING,
+      default: "private"
+    }, // "public" || "private"
     password: Sequelize.STRING,
     edit_hash: Sequelize.STRING,
     edit_slug: Sequelize.STRING,
@@ -92,36 +123,68 @@ module.exports = {
     background_color: Sequelize.STRING,
     background_uri: Sequelize.STRING,
 
-    created_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
-    updated_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
     thumbnail_url: Sequelize.STRING,
-    thumbnail_updated_at: {type: Sequelize.DATE}
+    thumbnail_updated_at: {
+      type: Sequelize.DATE
+    }
   }),
 
   Membership: sequelize.define('membership', {
-    _id: {type: Sequelize.STRING, primaryKey: true},
+    _id: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
     space_id: Sequelize.STRING,
     user_id: Sequelize.STRING,
     role: Sequelize.STRING,
     code: Sequelize.STRING,
-    state: {type: Sequelize.STRING, defaultValue: "pending"}, // valid: "pending", "active"
+    state: {
+      type: Sequelize.STRING,
+      defaultValue: "pending"
+    }, // valid: "pending", "active"
     email_invited: Sequelize.STRING,
-    created_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
-    updated_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW}
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    }
   }),
 
   Message: sequelize.define('message', {
-    _id: {type: Sequelize.STRING, primaryKey: true},
+    _id: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
     space_id: Sequelize.STRING,
     user_id: Sequelize.STRING,
     editor_name: Sequelize.STRING,
     message: Sequelize.TEXT,
-    created_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
-    updated_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW}
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    }
   }),
 
   Artifact: sequelize.define('artifact', {
-    _id: {type: Sequelize.STRING, primaryKey: true},
+    _id: {
+      type: Sequelize.STRING,
+      primaryKey: true
+    },
     space_id: Sequelize.STRING,
     user_id: Sequelize.STRING,
 
@@ -131,7 +194,10 @@ module.exports = {
     editor_name: Sequelize.STRING,
     last_update_editor_name: Sequelize.STRING,
     description: Sequelize.TEXT,
-    state: {type: Sequelize.STRING, default: "idle"},
+    state: {
+      type: Sequelize.STRING,
+      default: "idle"
+    },
 
     //linked_to: Sequelize.STRING,
     title: Sequelize.STRING,
@@ -141,12 +207,30 @@ module.exports = {
     play_from: Sequelize.DECIMAL,
     play_to: Sequelize.DECIMAL,
 
-    x: {type: Sequelize.DECIMAL, default: 0.0},
-    y: {type: Sequelize.DECIMAL, default: 0.0},
-    z: {type: Sequelize.DECIMAL, default: 0.0},
-    r: {type: Sequelize.DECIMAL, default: 0.0},
-    w: {type: Sequelize.DECIMAL, default: 100},
-    h: {type: Sequelize.DECIMAL, default: 100},
+    x: {
+      type: Sequelize.DECIMAL,
+      default: 0.0
+    },
+    y: {
+      type: Sequelize.DECIMAL,
+      default: 0.0
+    },
+    z: {
+      type: Sequelize.DECIMAL,
+      default: 0.0
+    },
+    r: {
+      type: Sequelize.DECIMAL,
+      default: 0.0
+    },
+    w: {
+      type: Sequelize.DECIMAL,
+      default: 100
+    },
+    h: {
+      type: Sequelize.DECIMAL,
+      default: 100
+    },
 
     //control_points: [{
     //  dx: Number, dy: Number
@@ -155,7 +239,10 @@ module.exports = {
     control_points: Sequelize.TEXT,
 
     group: Sequelize.STRING,
-    locked: {type: Sequelize.BOOLEAN, default: false},
+    locked: {
+      type: Sequelize.BOOLEAN,
+      default: false
+    },
 
     payload_uri: Sequelize.STRING,
     payload_thumbnail_web_uri: Sequelize.STRING,
@@ -163,13 +250,31 @@ module.exports = {
     payload_thumbnail_big_uri: Sequelize.STRING,
     payload_size: Sequelize.INTEGER, // file size in bytes
 
-    fill_color: {type: Sequelize.STRING, default: "transparent"},
-    stroke_color: {type: Sequelize.STRING, default: "#000000"},
+    fill_color: {
+      type: Sequelize.STRING,
+      default: "transparent"
+    },
+    stroke_color: {
+      type: Sequelize.STRING,
+      default: "#000000"
+    },
     text_color: Sequelize.STRING,
-    stroke: {type: Sequelize.DECIMAL, default: 0.0},
-    stroke_style: {type: Sequelize.STRING, default: "solid"},
-    alpha: {type: Sequelize.DECIMAL, default: 1.0},
-    order: {type: Sequelize.INTEGER, default: 0},
+    stroke: {
+      type: Sequelize.DECIMAL,
+      default: 0.0
+    },
+    stroke_style: {
+      type: Sequelize.STRING,
+      default: "solid"
+    },
+    alpha: {
+      type: Sequelize.DECIMAL,
+      default: 1.0
+    },
+    order: {
+      type: Sequelize.INTEGER,
+      default: 0
+    },
     crop_x: Sequelize.INTEGER,
     crop_y: Sequelize.INTEGER,
     crop_w: Sequelize.INTEGER,
@@ -185,8 +290,14 @@ module.exports = {
     margin_top: Sequelize.INTEGER,
     margin_bottom: Sequelize.INTEGER,
     border_radius: Sequelize.INTEGER,
-    align: {type: Sequelize.STRING, default: "left"},
-    valign: {type: Sequelize.STRING, default: "top"},
+    align: {
+      type: Sequelize.STRING,
+      default: "left"
+    },
+    valign: {
+      type: Sequelize.STRING,
+      default: "top"
+    },
 
     brightness: Sequelize.DECIMAL,
     contrast: Sequelize.DECIMAL,
@@ -206,11 +317,17 @@ module.exports = {
       payload_size: Number
     }],*/
 
-    created_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW},
-    updated_at: {type: Sequelize.DATE, defaultValue: Sequelize.NOW}
+    created_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
+    updated_at: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    }
   }),
 
-  init: async function() {
+  init: async function () {
     User = this.User;
     Session = this.Session;
     Space = this.Space;
@@ -267,24 +384,44 @@ module.exports = {
       as: 'space'
     });
 
-    await sequelize.sync();
+    var syncSuccess = false;
+    // const sq = new Sequelize('', 'root', 'secret', { // tried to create database in case does not exists
+    //   host: 'db',
+    //   port: 3306,
+    //   dialect: 'mysql'
+    // });
+    while (syncSuccess == false) {
+      try {
+        // https://stackoverflow.com/questions/41258500/how-to-create-mysql-database-with-sequelize-nodejs
+        // await sq.query("CREATE DATABASE IF NOT EXISTS opendeck;"); // tried to create databsae in case does not exists
+        await sequelize.sync();
+        syncSuccess = true;
+
+      } catch (err) {
+        console.log("DB Synchronization failed wait for 3 seconds");
+        console.log(err);
+        await sleep(5000);
+      }
+    }
+
+    
 
     var umzug = new Umzug({
-        storage: 'sequelize',
-        storageOptions: {
-            sequelize: sequelize
-        },
-        migrations: {
-            params: [
-                sequelize.getQueryInterface(),
-                Sequelize
-            ],
-            path: './models/migrations',
-            pattern: /\.js$/
-        }
+      storage: 'sequelize',
+      storageOptions: {
+        sequelize: sequelize
+      },
+      migrations: {
+        params: [
+          sequelize.getQueryInterface(),
+          Sequelize
+        ],
+        path: './models/migrations',
+        pattern: /\.js$/
+      }
     });
 
-    umzug.up().then(function(migrations)  {
+    umzug.up().then(function (migrations) {
       console.log('Migration complete up!');
     });
 
@@ -292,20 +429,24 @@ module.exports = {
 
   getUserRoleInSpace: (originalSpace, user, cb) => {
     originalSpace.path = [];
-    
+
     if (originalSpace._id == user.home_folder_id || (originalSpace.creator_id && originalSpace.creator_id == user._id)) {
       cb("admin");
     } else {
-      var findMembershipsForSpace = function(space, allMemberships, prevRole) {
-        Membership.findAll({ where: {
-          "space_id": space._id
-        }}).then(function(parentMemberships) {
+      var findMembershipsForSpace = function (space, allMemberships, prevRole) {
+        Membership.findAll({
+          where: {
+            "space_id": space._id
+          }
+        }).then(function (parentMemberships) {
           var currentMemberships = parentMemberships.concat(allMemberships);
 
           if (space.parent_space_id) {
-            Space.findOne({ where: {
-              "_id": space.parent_space_id
-            }}).then(function(parentSpace) {
+            Space.findOne({
+              where: {
+                "_id": space.parent_space_id
+              }
+            }).then(function (parentSpace) {
               findMembershipsForSpace(parentSpace, currentMemberships, prevRole);
             });
           } else {
@@ -319,7 +460,7 @@ module.exports = {
               }
             }
 
-            currentMemberships.forEach(function(m, i) {
+            currentMemberships.forEach(function (m, i) {
               if (m.user_id && m.user_id == user._id) {
                 role = m.role;
               }
@@ -339,10 +480,18 @@ module.exports = {
   },
 
   findUserBySessionToken: (token, cb) => {
-    Session.findOne({where: {token: token}})
+    Session.findOne({
+        where: {
+          token: token
+        }
+      })
       .then(session => {
         if (!session) cb(null, null)
-        else User.findOne({where: {_id: session.user_id}})
+        else User.findOne({
+            where: {
+              _id: session.user_id
+            }
+          })
           .then(user => {
             cb(null, user)
           })
@@ -350,26 +499,26 @@ module.exports = {
   },
 
   unpackArtifact: (a) => {
-    if (a.tags && (typeof a.tags)=="string") {
+    if (a.tags && (typeof a.tags) == "string") {
       a.tags = JSON.parse(a.tags);
     }
-    if (a.control_points && (typeof a.control_points)=="string") {
+    if (a.control_points && (typeof a.control_points) == "string") {
       a.control_points = JSON.parse(a.control_points);
     }
-    if (a.payload_alternatives && (typeof a.payload_alternatives)=="string") {
+    if (a.payload_alternatives && (typeof a.payload_alternatives) == "string") {
       a.payload_alternatives = JSON.parse(a.payload_alternatives);
     }
     return a;
   },
 
   packArtifact: (a) => {
-    if (a.tags && (typeof a.tags)!="string") {
+    if (a.tags && (typeof a.tags) != "string") {
       a.tags = JSON.stringify(a.tags);
     }
-    if (a.control_points && (typeof a.control_points)!="string") {
+    if (a.control_points && (typeof a.control_points) != "string") {
       a.control_points = JSON.stringify(a.control_points);
     }
-    if (a.payload_alternatives && (typeof a.payload_alternatives)!="string") {
+    if (a.payload_alternatives && (typeof a.payload_alternatives) != "string") {
       a.payload_alternatives = JSON.stringify(a.payload_alternatives);
     }
     return a;
