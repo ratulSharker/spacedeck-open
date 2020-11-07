@@ -7,22 +7,23 @@ function sequel_log(a, b, c) {
 }
 
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('opendeck', 'root', 'secret', {
-  host: 'db',
+const sequelize = new Sequelize('opendeck', 'root', 'abcd1234', {
+  host: 'localhost',
   port: 3306,
   dialect: 'mysql',
-
-  pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
-    idle: 10000
+  dialectOptions: {
+    decimalNumbers: true
   },
+  // pool: {
+  //   max: 5,
+  //   min: 0,
+  //   acquire: 30000,
+  //   idle: 10000
+  // },
 
   // SQLite only
   // storage: config.get('storage_local_db'),
-  // logging: sequel_log,
-  logging: true,
+  logging: sequel_log,
 
   // http://docs.sequelizejs.com/manual/tutorial/querying.html#operators
   operatorsAliases: false
@@ -280,7 +281,7 @@ module.exports = {
     crop_w: Sequelize.INTEGER,
     crop_h: Sequelize.INTEGER,
     shape: Sequelize.STRING,
-    shape_svg: Sequelize.STRING,
+    shape_svg: Sequelize.TEXT,
     padding_left: Sequelize.INTEGER,
     padding_right: Sequelize.INTEGER,
     padding_top: Sequelize.INTEGER,
