@@ -354,7 +354,8 @@ module.exports = {
       foreignKey: {
         name: 'space_id'
       },
-      as: 'space'
+      as: 'space',
+      onDelete: 'CASCADE'
     });
 
     Artifact.belongsTo(User, {
@@ -368,7 +369,8 @@ module.exports = {
       foreignKey: {
         name: 'space_id'
       },
-      as: 'space'
+      as: 'space',
+      onDelete: 'CASCADE'
     });
 
     Message.belongsTo(User, {
@@ -382,7 +384,8 @@ module.exports = {
       foreignKey: {
         name: 'space_id'
       },
-      as: 'space'
+      as: 'space',
+      onDelete: 'CASCADE'
     });
 
     var syncSuccess = false;
