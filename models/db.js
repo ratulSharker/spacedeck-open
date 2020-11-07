@@ -7,8 +7,8 @@ function sequel_log(a, b, c) {
 }
 
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('opendeck', 'root', 'abcd1234', {
-  host: 'localhost',
+const sequelize = new Sequelize('opendeck', 'root', 'secret', {
+  host: 'db',
   port: 3306,
   dialect: 'mysql',
   dialectOptions: {
@@ -404,7 +404,7 @@ module.exports = {
       } catch (err) {
         console.log("DB Synchronization failed wait for 3 seconds");
         console.log(err);
-        await sleep(5000);
+        await sleep(10000);
       }
     }
 
